@@ -1,5 +1,5 @@
 #
-# Development
+# Development targets
 OUTD = out
 TARGET = $(OUTD)/ggbook
 
@@ -19,7 +19,7 @@ run: $(TARGET)
 	./$(TARGET)
 
 #
-# Manual testing section
+# Manual testing targets
 
 # Example JSON data for PUT and POST requests
 JSON_DATA = '{ \
