@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
 )
 
 func main() {
@@ -12,7 +13,15 @@ func main() {
 
 	flag.Parse()
 
-	err := openDb()
+	// load up all the necessary environment variables
+	dbUrlEnv := os.Getenv("DB_URL")
+	server := os.Getenv("SERVER")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	err := openDb(dbUrlEnv)
 	if err != nil {
 		panic(err)
 	}
@@ -31,7 +40,7 @@ func main() {
 	}
 
 	if *startFlag {
-		listenAndServe()
+		listenAndServe(server + ":" + port)
 		return
 	}
 }

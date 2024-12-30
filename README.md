@@ -23,7 +23,7 @@ go run main.go -migrate
 4. **Start the web server:**
 
 ```bash
-go run main.go
+go run main.go -start
 ```
 
 or build and run:
