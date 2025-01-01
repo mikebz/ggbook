@@ -1,3 +1,9 @@
+// main package for the go guest book application
+// this application demonstrates a simple golang web application
+// using sqlite as the database and gorm as the orm.
+// the application has a simple api for creating, reading, updating and deleting resources.
+// the application is designed to be easy to deploy and run.  It uses a single binary
+// and has minimal dependencies.
 package main
 
 import (
