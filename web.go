@@ -1,6 +1,8 @@
 // File for processing the web requests.
 // All the things that decode incoming web request or even know about the web
-// should be here.
+// should be here.  Things like parsing errors or figuring out what HTTP code
+// to send should reside here. Beyond this barrier the logical layer of the app
+// should not be concerned with how the requests came in.
 package main
 
 import (
@@ -16,6 +18,9 @@ func listenAndServe(address string) error {
 
 	fmt.Println("Starting the server")
 	r.HandleFunc("/", indexHandler)
+	http.Handle("/images/", http.FileServer(http.Dir("html/images")))
+	http.Handle("/styles/", http.FileServer(http.Dir("html/styles")))
+
 	r.HandleFunc("/guests/{id}", oneGuestHandler)
 	r.HandleFunc("/guests", allGuestHandler)
 
@@ -23,7 +28,8 @@ func listenAndServe(address string) error {
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Go Guest Book!\n")
+	fmt.Println("index handler")
+	http.ServeFile(w, r, "html/index.html")
 }
 
 // oneGuestHandler handles requests to the /guests/{id} endpoint.
