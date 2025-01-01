@@ -8,6 +8,7 @@ all: $(TARGET)
 
 clean:
 	rm -fr $(OUTD)
+	rm *.db
 
 test:
 	go test ./...
@@ -34,11 +35,11 @@ curl_post:
 	curl -X POST -d $(JSON_DATA) $(API_URL)
 
 curl_get:
-	curl $(API_URL)/123
+	curl $(API_URL)/1
 
 curl_get_all:
 	curl $(API_URL)
 
 
 curl_delete:
-	curl -X DELETE $(API_URL)/123
+	curl -X DELETE $(API_URL)/1
