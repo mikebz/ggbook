@@ -16,7 +16,7 @@ import (
 func listenAndServe(address string) error {
 	r := http.NewServeMux()
 
-	fmt.Println("Starting the server")
+	logger.Println("Starting the server")
 	r.HandleFunc("/", indexHandler)
 	http.Handle("/images/", http.FileServer(http.Dir("html/images")))
 	http.Handle("/styles/", http.FileServer(http.Dir("html/styles")))
@@ -28,7 +28,7 @@ func listenAndServe(address string) error {
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("index handler")
+	logger.Println("index handler")
 	http.ServeFile(w, r, "html/index.html")
 }
 

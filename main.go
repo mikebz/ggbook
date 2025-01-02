@@ -8,12 +8,14 @@ package main
 
 import (
 	"flag"
-	"fmt"
+	"log"
 	"os"
 )
 
+var logger = log.Default()
+
 func main() {
-	fmt.Println("Go Guest Book Starting")
+	logger.Println("Go Guest Book Starting")
 	startFlag := flag.Bool("start", true, "Start web server")
 	migrateFlag := flag.Bool("migrate", false, "Database migration")
 

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -15,6 +15,7 @@ type Guest struct {
 }
 
 var db *gorm.DB
+var logger = log.Default()
 
 // the database string is empty we will default to `main.db`
 func openDb(dbUrl string) error {
@@ -24,43 +25,43 @@ func openDb(dbUrl string) error {
 		dbUrl = "main.db"
 	}
 
-	fmt.Println("Opening database")
+	logger.Println("Opening database")
 	db, err = gorm.Open(sqlite.Open(dbUrl), &gorm.Config{})
 	return err
 
 }
 
 func migrate() error {
-	fmt.Println("Migration")
+	logger.Println("Migration")
 	err := db.AutoMigrate(&Guest{})
 	return err
 }
 
 func createGuest(guest *Guest) error {
-	fmt.Println("Creating user")
+	logger.Println("Creating user")
 	return db.Create(guest).Error
 }
 
 func allGuests() (guests []Guest, err error) {
-	fmt.Println("Getting all users")
+	logger.Println("Getting all users")
 	err = db.Find(&guests).Error
 	return guests, err
 }
 
 func oneGuest(id uint) (guest *Guest, err error) {
-	fmt.Println("Getting one user")
+	logger.Println("Getting one user")
 	err = db.First(&guest, id).Error
 	return guest, err
 }
 
 func deleteGuest(id uint) error {
-	fmt.Println("Deleting user")
+	logger.Println("Deleting user")
 	err := db.Delete(&Guest{}, id).Error
 	return err
 }
 
 func updateGuest(guest *Guest) error {
-	fmt.Println("Updating user")
+	logger.Println("Updating user")
 	err := db.Model(guest).Updates(guest).Error
 	return err
 }
