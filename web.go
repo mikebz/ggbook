@@ -62,6 +62,7 @@ func oneGuestHandler(w http.ResponseWriter, r *http.Request) {
 	case "PUT":
 		var guest Guest
 		err := json.NewDecoder(r.Body).Decode(&guest)
+		logger.Printf("guest %v\n", guest)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -99,11 +100,12 @@ func allGuestHandler(w http.ResponseWriter, r *http.Request) {
 	case "POST":
 		var guest Guest
 		err := json.NewDecoder(r.Body).Decode(&guest)
+		logger.Printf("guest %v\n", guest)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		err = createGuest(&Guest{})
+		err = createGuest(&guest)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
