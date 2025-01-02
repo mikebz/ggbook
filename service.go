@@ -1,8 +1,6 @@
 package main
 
 import (
-	"log"
-
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -15,7 +13,6 @@ type Guest struct {
 }
 
 var db *gorm.DB
-var logger = log.Default()
 
 // the database string is empty we will default to `main.db`
 func openDb(dbUrl string) error {

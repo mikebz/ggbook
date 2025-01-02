@@ -33,8 +33,9 @@ func TestAllGuests(t *testing.T) {
 }
 
 func TestOneGuest(t *testing.T) {
-	createGuest(&Guest{Name: "Thing One", Email: "thing1@example.com"})
-	guest, err := oneGuest(1)
+	g := &Guest{Name: "Thing One", Email: "thing1@example.com"}
+	createGuest(g)
+	guest, err := oneGuest(g.ID)
 	assert.NoError(t, err)
 	assert.NotNil(t, guest)
 }
