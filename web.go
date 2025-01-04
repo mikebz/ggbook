@@ -7,7 +7,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 )
@@ -37,7 +36,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 // Other methods will return a 405 Method Not Allowed error.
 func oneGuestHandler(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
-	fmt.Fprintf(w, "%s guest. ID: %s\n", r.Method, id)
+	logger.Printf("%s guest. ID: %s\n", r.Method, id)
 
 	uid, err := strconv.ParseUint(id, 10, 32)
 	if err != nil {
@@ -83,7 +82,7 @@ func oneGuestHandler(w http.ResponseWriter, r *http.Request) {
 // It supports GET (list all guests) and POST (create a new guest) methods.
 // Other methods will return a 405 Method Not Allowed error.
 func allGuestHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "%s guests\n", r.Method)
+	logger.Printf("%s guests\n", r.Method)
 
 	switch r.Method {
 

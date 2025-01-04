@@ -42,6 +42,7 @@ func createGuest(guest *Guest) error {
 func allGuests() (guests []Guest, err error) {
 	logger.Println("Getting all users")
 	err = db.Find(&guests).Error
+	logger.Printf("Got %d guests\n", len(guests))
 	return guests, err
 }
 

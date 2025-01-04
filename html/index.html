@@ -2,20 +2,39 @@
 <html>
   <head>
     <title>Go Guest Book</title>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/vue@3.5/dist/vue.global.js"></script>
 </head>
-  <body>
+  <body>    
+    <div id="app">
+        {{ message }}
+        <br/>
+        <ul>
+            <li v-for="guest in guests">
+                {{ guest.name }} - {{ guest.email }}
+            </li>
+        </ul>    
+    </div>
 
-    <div id="app">{{ message }}</div>
-    
     <script>
       const { createApp, ref } = Vue
     
       createApp({
         setup() {
           const message = ref('Hello vue!')
+          const guests = ref([])
+
+          fetch('/guests')
+            .then(response => {
+              if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+              }
+              return response.json()
+            })
+            .then(data => guests.value = data)
+
           return {
-            message
+            message,
+            guests
           }
         }
       }).mount('#app')
