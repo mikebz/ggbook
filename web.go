@@ -23,6 +23,7 @@ func listenAndServe(address string) error {
 	r.HandleFunc("/guests/{id}", oneGuestHandler)
 	r.HandleFunc("/guests", allGuestHandler)
 
+	logger.Printf("Starting server on %s", address)
 	return http.ListenAndServe(address, r)
 }
 
@@ -45,20 +46,22 @@ func oneGuestHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	switch r.Method {
-	case "GET":
+	case http.MethodGet:
 		guest, err := oneGuest(uint(uid))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusNotFound)
 			return
 		}
 		json.NewEncoder(w).Encode(guest)
-	case "DELETE":
+		w.WriteHeader(http.StatusOK)
+	case http.MethodDelete:
 		err := deleteGuest(uint(uid))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusNotFound)
 			return
 		}
-	case "PUT":
+		w.WriteHeader(http.StatusNoContent) // 204 for successful delete
+	case http.MethodPut:
 		var guest Guest
 		err := json.NewDecoder(r.Body).Decode(&guest)
 		logger.Printf("guest %v\n", guest)
@@ -72,9 +75,10 @@ func oneGuestHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusNotFound)
 			return
 		}
+		w.WriteHeader(http.StatusOK)
 
 	default:
-		w.WriteHeader(http.StatusMethodNotAllowed)
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
 }
 
@@ -87,16 +91,17 @@ func allGuestHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 
 	// get all the guests
-	case "GET":
+	case http.MethodGet:
 		guests, err := allGuests()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		json.NewEncoder(w).Encode(guests)
+		w.WriteHeader(http.StatusOK)
 
 	// create a new guest
-	case "POST":
+	case http.MethodPost:
 		var guest Guest
 		err := json.NewDecoder(r.Body).Decode(&guest)
 		logger.Printf("guest %v\n", guest)
@@ -111,6 +116,6 @@ func allGuestHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		w.WriteHeader(http.StatusCreated)
 	default:
-		w.WriteHeader(http.StatusMethodNotAllowed)
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
 }
