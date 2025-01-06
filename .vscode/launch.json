@@ -17,10 +17,7 @@
             "request": "launch",
             "mode": "auto",
             "program": "${fileDirname}",
-            "env": {
-                "PORT": "8080",
-                "SERVER": "localhost"
-            }            
+            "envFile": "${workspaceFolder}/.env",
         }
     ]
 }
