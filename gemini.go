@@ -26,75 +26,61 @@ func configureAiModel(client *genai.Client) {
 }
 
 func aiTools() []*genai.Tool {
-	t := genai.Tool{
-		FunctionDeclarations: []*genai.FunctionDeclaration{
-			{
-				Name:        "createGuest",
-				Description: "Create or register a new guest.",
-				Parameters: &genai.Schema{
-					Type: genai.TypeObject,
-					Properties: map[string]*genai.Schema{
-						"name": {
-							Type: genai.TypeString,
+	return []*genai.Tool{
+		{
+			FunctionDeclarations: []*genai.FunctionDeclaration{
+				{
+					Name:        "createGuest",
+					Description: "Create or register a new guest.",
+					Parameters: &genai.Schema{
+						Type: genai.TypeObject,
+						Properties: map[string]*genai.Schema{
+							"name":  {Type: genai.TypeString},
+							"email": {Type: genai.TypeString},
 						},
-						"email": {
-							Type: genai.TypeString,
-						},
+						Required: []string{"name", "email"},
 					},
-					Required: []string{"name", "email"},
 				},
-			},
-			{
-				Name:        "allGuests",
-				Description: "Get all the guests that have been created or registered.",
-			},
-			{
-				Name:        "oneGuest",
-				Description: "Get one guest",
-				Parameters: &genai.Schema{
-					Type: genai.TypeObject,
-					Properties: map[string]*genai.Schema{
-						"id": {
-							Type: genai.TypeInteger,
-						},
-					},
-					Required: []string{"id"},
+				{
+					Name:        "allGuests",
+					Description: "Get all the guests that have been created or registered.",
 				},
-			},
-			{
-				Name:        "deleteGuest",
-				Description: "Delete a guest.",
-				Parameters: &genai.Schema{
-					Type: genai.TypeObject,
-					Properties: map[string]*genai.Schema{
-						"id": {
-							Type: genai.TypeInteger,
+				{
+					Name:        "oneGuest",
+					Description: "Get one guest",
+					Parameters: &genai.Schema{
+						Type: genai.TypeObject,
+						Properties: map[string]*genai.Schema{
+							"id": {Type: genai.TypeInteger},
 						},
+						Required: []string{"id"},
 					},
-					Required: []string{"id"},
 				},
-			},
-			{
-				Name:        "updateGuest",
-				Description: "Update guest information such as name and email",
-				Parameters: &genai.Schema{
-					Type: genai.TypeObject,
-					Properties: map[string]*genai.Schema{
-						"id": {
-							Type: genai.TypeInteger,
+				{
+					Name:        "deleteGuest",
+					Description: "Delete a guest.",
+					Parameters: &genai.Schema{
+						Type: genai.TypeObject,
+						Properties: map[string]*genai.Schema{
+							"id": {Type: genai.TypeInteger},
 						},
-						"name": {
-							Type: genai.TypeString,
-						},
-						"email": {
-							Type: genai.TypeString,
-						},
+						Required: []string{"id"},
 					},
-					Required: []string{"id", "name", "email"},
+				},
+				{
+					Name:        "updateGuest",
+					Description: "Update guest information such as name and email",
+					Parameters: &genai.Schema{
+						Type: genai.TypeObject,
+						Properties: map[string]*genai.Schema{
+							"id":    {Type: genai.TypeInteger},
+							"name":  {Type: genai.TypeString},
+							"email": {Type: genai.TypeString},
+						},
+						Required: []string{"id", "name", "email"},
+					},
 				},
 			},
 		},
 	}
-
-	return []*genai.Tool{&t}
 }
