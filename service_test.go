@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -20,6 +21,17 @@ func TestCreateGuest(t *testing.T) {
 	}
 }
 
+func TestCreateGuestDx(t *testing.T) {
+	p := map[string]any{
+		"name":  "Test Guest",
+		"email": "test@example.com",
+	}
+	rmap := createGuestDx(p)
+	assert.NotNil(t, rmap)
+	result := rmap["result"]
+	assert.Equal(t, result, "OK")
+}
+
 func TestAllGuests(t *testing.T) {
 	createGuest(&Guest{Name: "Thing One", Email: "thing1@example.com"})
 	createGuest(&Guest{Name: "Thing Two", Email: "thing2@example.com"})
@@ -32,6 +44,17 @@ func TestAllGuests(t *testing.T) {
 	assert.Greater(t, len(guests), 2)
 }
 
+func TestAllGuestsDx(t *testing.T) {
+	createGuest(&Guest{Name: "Thing One", Email: "thing1@example.com"})
+	createGuest(&Guest{Name: "Thing Two", Email: "thing2@example.com"})
+
+	rmap := allGuestsDx(nil)
+	assert.NotNil(t, rmap)
+	result := rmap["result"]
+	assert.Equal(t, result, "OK")
+	assert.Greater(t, len(rmap), 5) // at least two guests with name and email and the result
+}
+
 func TestOneGuest(t *testing.T) {
 	g := &Guest{Name: "Thing One", Email: "thing1@example.com"}
 	createGuest(g)
@@ -40,12 +63,34 @@ func TestOneGuest(t *testing.T) {
 	assert.NotNil(t, guest)
 }
 
+func TestOneGuestDx(t *testing.T) {
+	g := &Guest{Name: "Thing One", Email: "thing1@example.com"}
+	createGuest(g)
+
+	p := map[string]any{
+		"id": strconv.FormatUint(uint64(g.ID), 10),
+	}
+	rmap := oneGuestDx(p)
+	assert.NotNil(t, rmap)
+	result := rmap["result"]
+	assert.Equal(t, result, "OK")
+
+}
+
 func TestDeleteGuest(t *testing.T) {
 	err := deleteGuest(1)
 	assert.NoError(t, err)
 }
 
-// TODO: test updating a guest.
+func TestDeleteGuestDx(t *testing.T) {
+	p := map[string]any{
+		"id": "1",
+	}
+	rmap := deleteGuestDx(p)
+	assert.NotNil(t, rmap)
+	result := rmap["result"]
+	assert.Equal(t, result, "OK")
+}
 
 func teardown() {
 	// not sure what happened to the gorm close method

@@ -12,6 +12,7 @@ import (
 var model *genai.GenerativeModel
 
 func createAiClient(ctx context.Context, apiKey string) (*genai.Client, error) {
+	logger.Println("Creating a new AI client")
 	client, err := genai.NewClient(ctx, option.WithAPIKey(apiKey))
 	if err != nil {
 		return nil, err
@@ -23,6 +24,58 @@ func createAiClient(ctx context.Context, apiKey string) (*genai.Client, error) {
 func configureAiModel(client *genai.Client) {
 	model = client.GenerativeModel("gemini-1.5-flash")
 	model.Tools = aiTools()
+}
+
+func aiChat(ctx context.Context, chatSession *genai.ChatSession, prompt string) (resp string, err error) {
+	logger.Printf("Sending a message to Gemini %s", prompt)
+	// Send the message to the generative model.
+	r, err := chatSession.SendMessage(ctx, genai.Text(prompt))
+	if err != nil {
+		return "", err
+	}
+
+	fnCalls := r.Candidates[0].FunctionCalls()
+
+	// handle a conversation that had no calls, just
+	if len(fnCalls) == 0 {
+		logger.Printf("Non functional response received")
+		for _, part := range r.Candidates[0].Content.Parts {
+			if txt, ok := part.(genai.Text); ok {
+				resp += string(txt)
+			}
+		}
+	} else {
+		args := fnCalls[0].Args
+
+		// the lookup of fucntions is invoked with the actual Dx function
+		// and then the arguments are applied here.
+		response := dxFns[fnCalls[0].Name](args)
+		genAiResp := genai.FunctionResponse{
+			Name:     fnCalls[0].Name,
+			Response: response,
+		}
+
+		r, err = chatSession.SendMessage(ctx, genAiResp)
+		if err != nil {
+			return "", err
+		}
+
+		for _, part := range r.Candidates[0].Content.Parts {
+			if txt, ok := part.(genai.Text); ok {
+				resp += string(txt)
+			}
+		}
+	}
+
+	return resp, err
+}
+
+var dxFns = map[string]DxFunc{
+	"createGuest": createGuestDx,
+	"allGuests":   allGuestsDx,
+	"oneGuest":    oneGuestDx,
+	"deleteGuest": deleteGuestDx,
+	"updateGuest": updateGuestDx,
 }
 
 func aiTools() []*genai.Tool {

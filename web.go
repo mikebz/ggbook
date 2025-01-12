@@ -7,9 +7,14 @@ package main
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
 	"strconv"
+
+	"github.com/google/generative-ai-go/genai"
 )
+
+var chatSession *genai.ChatSession
 
 // start a webserver.  Address is passed direclty to http library
 func listenAndServe(address string) error {
@@ -23,6 +28,8 @@ func listenAndServe(address string) error {
 	r.HandleFunc("/guests/{id}", oneGuestHandler)
 	r.HandleFunc("/guests", allGuestHandler)
 
+	r.HandleFunc("/chat", chatHandler)
+
 	logger.Printf("Starting server on %s", address)
 	return http.ListenAndServe(address, r)
 }
@@ -30,6 +37,45 @@ func listenAndServe(address string) error {
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	logger.Println("index handler")
 	http.ServeFile(w, r, "html/index.html")
+}
+
+func chatHandler(w http.ResponseWriter, r *http.Request) {
+	logger.Println("chat handler")
+	ctx := r.Context()
+
+	// TODO eventually expand to be multi session
+	if chatSession == nil {
+		chatSession = model.StartChat()
+	}
+
+	switch r.Method {
+	case http.MethodPost:
+
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			logger.Printf("Error reading body: %v", err)
+			http.Error(w, "can't read body", http.StatusBadRequest)
+			return
+		}
+
+		// body is a []byte, convert it to a string
+		bodyStr := string(body)
+
+		resp, err := aiChat(ctx, chatSession, bodyStr)
+		if err != nil {
+			logger.Printf("Error getting a response from gemini: %v", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// everything is OK, write out the response.
+		w.Header().Set("Content-Type", "text/plain")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(resp))
+
+	default:
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
 }
 
 // oneGuestHandler handles requests to the /guests/{id} endpoint.
