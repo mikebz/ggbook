@@ -1,43 +1,19 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Go Guest Book</title>
-    <script src="https://unpkg.com/vue@3.5/dist/vue.global.js"></script>
+
+<head>
+  <title>Go Guest Book</title>
+  <script src="https://unpkg.com/vue@3.5/dist/vue.global.js"></script>
 </head>
-  <body>    
-    <div id="app">
-        {{ message }}
-        <br/>
-        <ul>
-            <li v-for="guest in guests">
-                {{ guest.name }} - {{ guest.email }}
-            </li>
-        </ul>    
-    </div>
 
-    <script>
-      const { createApp, ref } = Vue
-    
-      createApp({
-        setup() {
-          const message = ref('Hello vue!')
-          const guests = ref([])
+<body>
+  <div id="app"></div>
 
-          fetch('/guests')
-            .then(response => {
-              if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-              }
-              return response.json()
-            })
-            .then(data => guests.value = data)
+  <script type="module">
+    const { createApp } = Vue
+    import App from './components/App.vue'
+    createApp(App).mount('#app')
+  </script>
+</body>
 
-          return {
-            message,
-            guests
-          }
-        }
-      }).mount('#app')
-    </script>
-  </body>
 </html>
