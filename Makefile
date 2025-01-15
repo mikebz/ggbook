@@ -16,7 +16,10 @@ test:
 build:
 	go build -o $(TARGET)
 
-run: build
+build_frontend:
+	cd html && npm run build
+
+run: build build_frontend
 	./$(TARGET)
 
 migrate: build

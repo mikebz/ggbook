@@ -21,22 +21,17 @@ func listenAndServe(address string) error {
 	r := http.NewServeMux()
 
 	logger.Println("Starting the server")
-	r.HandleFunc("/", indexHandler)
-	http.Handle("/images/", http.FileServer(http.Dir("html/images")))
-	http.Handle("/styles/", http.FileServer(http.Dir("html/styles")))
 
 	r.HandleFunc("/guests/{id}", oneGuestHandler)
 	r.HandleFunc("/guests", allGuestHandler)
 
 	r.HandleFunc("/chat", chatHandler)
 
+	fs := http.FileServer(http.Dir("html/dist"))
+	r.Handle("/", http.StripPrefix("/", fs))
+	
 	logger.Printf("Starting server on %s", address)
 	return http.ListenAndServe(address, r)
-}
-
-func indexHandler(w http.ResponseWriter, r *http.Request) {
-	logger.Println("index handler")
-	http.ServeFile(w, r, "html/index.html")
 }
 
 func chatHandler(w http.ResponseWriter, r *http.Request) {
