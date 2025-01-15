@@ -1,4 +1,6 @@
-1. **Original source code**
+# Develoment
+
+## Getting the source code
 
 Originally developed by mikebz@ to test out LLM UX (and learn how to create golang micro services with minimal
 dependencies)
@@ -8,56 +10,41 @@ git clone https://github.com/mikebz/ggbook.git
 cd ggbook
 ```
 
-2. **Install dependencies:**
+## Backend Development
+
+### Go dependencies
 
 ```bash
 go mod tidy
 ```
 
-3. **Run database migration:**
+### Run database migration:
+
+This needs to happen before the sample can run.
 
 ```bash
-go run main.go -migrate
+make migrate
 ```
 
-4. **Start the web server:**
+### Start the web server:
 
 ```bash
-go run main.go -start
-```
-
-or build and run:
-
-```bash
-make build
 make run
 ```
 
-The server will listen on `localhost:8080` by default.  You can change this by setting the `SERVER` and `PORT` environment variables.
-
-## API Endpoints
-
-* **`/`**:  Returns a welcome message.
-* **`/guests`**:
-    * `GET`: Retrieves a list of all guests.
-    * `POST`: Creates a new guest entry.  Requires a JSON payload with `name` and `email` fields.
-* **`/guests/{id}`**:
-    * `GET`: Retrieves a specific guest by ID.
-    * `PUT`: Updates a specific guest by ID.  Requires a JSON payload with `name` and `email` fields.
-    * `DELETE`: Deletes a specific guest by ID.
+The server will listen on `localhost:8080` by default. You can change this by setting the `SERVER` and `PORT` environment variables.
 
 ## Front end development
 
 [VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
 
-
 ### Type Support for `.vue` Imports in TS
 
 TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
 
-### Project setup
+### Running dev frontend
 
-All the front end GUI is in the /html folder and uses VueJS.  In order to 
+All the front end GUI is in the /html folder and uses VueJS. In order to
 compile and run the front end please follow the standard `npm` instructions:
 
 ```
@@ -84,6 +71,16 @@ npm run build
 npm run lint
 ```
 
+## API Endpoints
+
+- **`/`**: Returns a welcome message.
+- **`/guests`**:
+  - `GET`: Retrieves a list of all guests.
+  - `POST`: Creates a new guest entry. Requires a JSON payload with `name` and `email` fields.
+- **`/guests/{id}`**:
+  - `GET`: Retrieves a specific guest by ID.
+  - `PUT`: Updates a specific guest by ID. Requires a JSON payload with `name` and `email` fields.
+  - `DELETE`: Deletes a specific guest by ID.
 
 ## Testing APIs
 
@@ -95,3 +92,4 @@ make curl_post # Example POST request
 make curl_get_all # Example GET request for all guests
 make curl_get # Example GET request for a specific guest
 make curl_delete # Example DELETE request
+```
