@@ -18,14 +18,13 @@ export default {
 
 <style scoped>
 .message {
-  background: #e7e7e7;
-  border-radius: 10px;
+  background: #e5e5e5;
   padding: 1rem;
   width: fit-content;
 }
 
 .message.dark {
-  background: #e9eaf6;
+  background: #b1d2f7;
 }
 
 h5 {

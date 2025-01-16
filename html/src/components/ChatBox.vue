@@ -22,12 +22,11 @@ export default {
 
 <style scoped>
 .chat-box {
-  width: 100%;
   display: flex;
 }
 
 input {
-  width: min(100%, 20rem);
+  width: 100%;
   flex-grow: 1;
 }
 

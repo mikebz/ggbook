@@ -89,7 +89,7 @@ body {
 
 button {
   border: 0;
-  background: #2a60ff;
+  background: #004899;
   color: white;
   cursor: pointer;
   padding: 1rem;
