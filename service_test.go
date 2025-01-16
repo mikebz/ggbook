@@ -92,6 +92,33 @@ func TestDeleteGuestDx(t *testing.T) {
 	assert.Equal(t, result, "OK")
 }
 
+func TestUpdateGuest(t *testing.T) {
+	g := &Guest{Name: "Thing One", Email: "before@example.com"}
+	err := createGuest(g)
+	assert.NoError(t, err)
+
+	g.Email = "after@example.com"
+	err = updateGuest(g)
+	assert.NoError(t, err)
+}
+
+func TestUpdateGuestDx(t *testing.T) {
+
+	g := &Guest{Name: "Thing One", Email: "before@example.com"}
+	err := createGuest(g)
+	assert.NoError(t, err)
+
+	p := map[string]any{
+		"id": strconv.FormatUint(uint64(g.ID), 10),
+		"name":  g.Name,
+		"email": "after@example.com",
+	}
+	rmap := updateGuestDx(p)
+	assert.NotNil(t, rmap)
+	result := rmap["result"]
+	assert.Equal(t, result, "OK")
+}
+
 func teardown() {
 	// not sure what happened to the gorm close method
 	// but this is a test database, we should be OK
