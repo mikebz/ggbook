@@ -36,6 +36,8 @@ The server will listen on `localhost:8080` by default. You can change this by se
 
 ## Front end development
 
+Thank you to: https://medium.com/@alen.ajam/building-a-simple-chat-app-with-vue-js-462c4a53c6ad for inspiration of how to build a simple chat in VueJS.
+
 [VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
 
 ### Type Support for `.vue` Imports in TS
