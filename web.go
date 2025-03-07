@@ -12,6 +12,7 @@ import (
 	"strconv"
 
 	"github.com/google/generative-ai-go/genai"
+	"github.com/rs/cors" // Import the cors package
 )
 
 var chatSession *genai.ChatSession
@@ -29,9 +30,19 @@ func listenAndServe(address string) error {
 
 	fs := http.FileServer(http.Dir("html/dist"))
 	r.Handle("/", http.StripPrefix("/", fs))
+
+	// Create a new CORS handler
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:5173"}, // Allow your frontend origin
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}, // Allow these methods
+		AllowedHeaders:   []string{"*"}, // Allow all headers
+		AllowCredentials: true, // If you need to send cookies, set this to true
+	})
+	handler := c.Handler(r)
+
 	
 	logger.Printf("Starting server on %s", address)
-	return http.ListenAndServe(address, r)
+	return http.ListenAndServe(address, handler)
 }
 
 func chatHandler(w http.ResponseWriter, r *http.Request) {

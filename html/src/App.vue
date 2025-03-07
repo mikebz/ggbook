@@ -28,7 +28,7 @@ export default {
         isMine: true,
         author: this.user?.name,
       })
-      fetch('/chat', {
+      fetch('http://localhost:8080/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'text/plain',
