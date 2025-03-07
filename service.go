@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"strconv"
 
 	"gorm.io/driver/sqlite"
@@ -71,7 +72,8 @@ func allGuestsDx(map[string]any) map[string]any {
 	for g := range allguests {
 		idStr := strconv.FormatUint(uint64(allguests[g].ID), 10)
 		result["guest["+idStr+"].name"] = allguests[g].Name
-		result["guest["+idStr+".email"] = allguests[g].Email
+		result["guest["+idStr+"].email"] = allguests[g].Email
+		result["guest["+idStr+"].id"] = allguests[g].ID
 	}
 
 	result["result"] = "OK"
@@ -86,7 +88,9 @@ func allGuests() (guests []Guest, err error) {
 }
 
 func oneGuestDx(p map[string]any) map[string]any {
-	id, err := strconv.ParseUint(p["id"].(string), 10, 32)
+	logger.Printf("Detting one user, params %v", p)
+	
+	id, err := safeUint(p["id"])
 	if err != nil {
 		return map[string]any{
 			"result": "error: " + err.Error(),
@@ -120,7 +124,8 @@ func oneGuest(id uint) (guest *Guest, err error) {
 }
 
 func deleteGuestDx(p map[string]any) map[string]any {
-	id, err := strconv.ParseUint(p["id"].(string), 10, 32)
+	logger.Printf("Deleting user, params %v", p)
+	id, err := safeUint(p["id"])
 	if err != nil {
 		return map[string]any{
 			"result": "error: " + err.Error(),
@@ -147,7 +152,8 @@ func deleteGuest(id uint) error {
 }
 
 func updateGuestDx(p map[string]any) map[string]any {
-	id, err := strconv.ParseUint(p["id"].(string), 10, 32)
+	logger.Printf("Updating user, params %v", p)
+	id, err := safeUint(p["id"])
 	if err != nil {
 		return map[string]any{
 			"result": "error: " + err.Error(),
@@ -173,4 +179,36 @@ func updateGuest(guest *Guest) error {
 	logger.Println("Updating user")
 	err := db.Model(guest).Updates(guest).Error
 	return err
+}
+
+func safeUint(value interface{}) (uint, error) {
+	if value == nil {
+		return 0, fmt.Errorf("value is nil")
+	}
+
+	switch v := value.(type) {
+	case uint:
+		return v, nil
+	case int:
+		if v < 0 {
+			return 0, fmt.Errorf("cannot convert negative int to uint")
+		}
+		return uint(v), nil
+	case string:
+		u, err := strconv.ParseUint(v, 10, 64)
+		if err != nil {
+			return 0, fmt.Errorf("invalid uint string: %w", err)
+		}
+		return uint(u), nil
+
+	case float32, float64:
+		f := value.(float64)
+		if f < 0 {
+			return 0, fmt.Errorf("cannot convert negative float to uint")
+		}
+		return uint(f), nil
+
+	default:
+		return 0, fmt.Errorf("unsupported type: %T", value)
+	}
 }
