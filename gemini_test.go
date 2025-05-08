@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+
 func TestCreateAiClient(t *testing.T) {
 	ctx := context.Background()
 	apiKey := os.Getenv("GEMINI_API_KEY")
@@ -96,7 +97,10 @@ func TestChat(t *testing.T) {
 	configureAiModel(client)
 	session := model.StartChat()
 
-	resp, err := aiChat(ctx, session, "give me a list of all guests")
+	err = aiChat(ctx, session, "give me a list of all guests")
+	assert.NoError(t, err)
+
+	resp, err := lastTextResponse(session)
 	assert.NoError(t, err)
 	assert.Contains(t, resp, "list of all")
 }
@@ -111,7 +115,10 @@ func TestNoCallMessage(t *testing.T) {
 	configureAiModel(client)
 	session := model.StartChat()
 
-	resp, err := aiChat(ctx, session, "what are you capable of doing?")
+	err = aiChat(ctx, session, "what are you capable of doing?")
+	assert.NoError(t, err)
+
+	resp, err := lastTextResponse(session)
 	assert.NoError(t, err)
 	assert.Contains(t, resp, "guest")
 }

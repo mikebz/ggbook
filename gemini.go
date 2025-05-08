@@ -2,14 +2,27 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"os"
+	"strings"
 
 	"github.com/google/generative-ai-go/genai"
 	"google.golang.org/api/option"
 )
 
+var LANG_MODEL = "gemini-2.0-flash"
+
 // NOTE: we are using a singleton for this simple example
 // but for a production system you need to do proper model management
 var model *genai.GenerativeModel
+
+func GetLangModel() string {
+	r := os.Getenv("LANG_MODEL")
+	if r == "" {
+		return LANG_MODEL
+	}
+	return r
+}
 
 func createAiClient(ctx context.Context, apiKey string) (*genai.Client, error) {
 	logger.Println("Creating a new AI client")
@@ -22,16 +35,16 @@ func createAiClient(ctx context.Context, apiKey string) (*genai.Client, error) {
 }
 
 func configureAiModel(client *genai.Client) {
-	model = client.GenerativeModel("gemini-1.5-flash")
+	model = client.GenerativeModel(GetLangModel())
 	model.Tools = aiTools()
 }
 
-func aiChat(ctx context.Context, chatSession *genai.ChatSession, prompt string) (resp string, err error) {
+func aiChat(ctx context.Context, chatSession *genai.ChatSession, prompt string) error {
 	logger.Printf("Sending a message to Gemini %s", prompt)
 	// Send the message to the generative model.
 	r, err := chatSession.SendMessage(ctx, genai.Text(prompt))
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	fnCalls := r.Candidates[0].FunctionCalls()
@@ -39,11 +52,6 @@ func aiChat(ctx context.Context, chatSession *genai.ChatSession, prompt string) 
 	// handle a conversation that had no calls, just
 	if len(fnCalls) == 0 {
 		logger.Printf("Non functional response received")
-		for _, part := range r.Candidates[0].Content.Parts {
-			if txt, ok := part.(genai.Text); ok {
-				resp += string(txt)
-			}
-		}
 	} else {
 		args := fnCalls[0].Args
 
@@ -57,17 +65,33 @@ func aiChat(ctx context.Context, chatSession *genai.ChatSession, prompt string) 
 
 		r, err = chatSession.SendMessage(ctx, genAiResp)
 		if err != nil {
-			return "", err
-		}
-
-		for _, part := range r.Candidates[0].Content.Parts {
-			if txt, ok := part.(genai.Text); ok {
-				resp += string(txt)
-			}
+			return err
 		}
 	}
 
-	return resp, err
+	return err
+}
+
+func lastTextResponse(chatSession *genai.ChatSession) (string, error) {
+	// Get the last response from the chat session
+	if len(chatSession.History) == 0 {
+		return "", fmt.Errorf("no history in chat session")
+	}
+
+	lastResponse := chatSession.History[len(chatSession.History)-1]
+
+
+	var response strings.Builder
+	for _, part := range lastResponse.Parts {
+		if txt, ok := part.(genai.Text); ok {
+			response.Write([]byte(txt))
+		}
+	}
+
+	if response.Len() == 0 {
+		return "", fmt.Errorf("no text response found")
+	}
+	return response.String(), nil
 }
 
 var dxFns = map[string]DxFunc{
