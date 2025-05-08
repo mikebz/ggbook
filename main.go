@@ -11,6 +11,8 @@ import (
 	"flag"
 	"log"
 	"os"
+
+	"github.com/joho/godotenv"
 )
 
 var logger = log.Default()
@@ -22,6 +24,8 @@ func main() {
 	migrateFlag := flag.Bool("migrate", false, "Database migration")
 
 	flag.Parse()
+
+	godotenv.Load()
 
 	// load up all the necessary environment variables
 	dbUrlEnv := os.Getenv("DB_URL")
