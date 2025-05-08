@@ -5,10 +5,12 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
 )
 
 func setup() {
+	godotenv.Load()
 	openDb("test.db")
 	migrate()
 }
