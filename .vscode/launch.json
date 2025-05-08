@@ -26,15 +26,6 @@
       "mode": "test",
       "program": "${fileDirname}",
       "envFile": "${workspaceFolder}/.env"
-    },
-    {
-      "name": "Launch dev front end",
-      "type": "node",
-      "request": "launch",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
-      "cwd": "${workspaceFolder}/html",
-      "port": 5173
     }
   ]
 }

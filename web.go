@@ -7,9 +7,11 @@ package main
 
 import (
 	"encoding/json"
+	"html/template"
 	"io"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/google/generative-ai-go/genai"
 	"github.com/rs/cors" // Import the cors package
@@ -27,20 +29,22 @@ func listenAndServe(address string) error {
 	r.HandleFunc("/guests", allGuestHandler)
 
 	r.HandleFunc("/chat", chatHandler)
+	r.HandleFunc("/llmodel", llmModelHandler)
 
-	fs := http.FileServer(http.Dir("html/dist"))
+	fs := http.FileServer(http.Dir("html/"))
 	r.Handle("/", http.StripPrefix("/", fs))
 
 	// Create a new CORS handler
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:5173"}, // Allow your frontend origin
+		AllowedOrigins:   []string{"http://localhost:5173",
+								   "http://localhost:8080"}, // Allow your frontend origin
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}, // Allow these methods
 		AllowedHeaders:   []string{"*"}, // Allow all headers
 		AllowCredentials: true, // If you need to send cookies, set this to true
 	})
 	handler := c.Handler(r)
 
-	
+
 	logger.Printf("Starting server on %s", address)
 	return http.ListenAndServe(address, handler)
 }
@@ -55,30 +59,75 @@ func chatHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	switch r.Method {
-	case http.MethodPost:
+	case http.MethodGet:
 
-		body, err := io.ReadAll(r.Body)
+		err := writeHistory(w)
 		if err != nil {
-			logger.Printf("Error reading body: %v", err)
-			http.Error(w, "can't read body", http.StatusBadRequest)
+			logger.Printf("Error writing history: %v", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		// body is a []byte, convert it to a string
-		bodyStr := string(body)
+		w.Header().Set("Content-Type", "text/html")
+		w.WriteHeader(http.StatusOK)
+	case http.MethodPost:
 
-		resp, err := aiChat(ctx, chatSession, bodyStr)
+		content := r.FormValue("chat_message")
+
+		userMsg := &Message{ User, content, time.Now()}
+		ChatHistory = append(ChatHistory, userMsg)
+
+		resp, err := aiChat(ctx, chatSession, content)
 		if err != nil {
 			logger.Printf("Error getting a response from gemini: %v", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		// everything is OK, write out the response.
+		aiMsg := &Message{ Agent, resp, time.Now()}
+		ChatHistory = append(ChatHistory, aiMsg)
+
+		err = writeHistory(w)
+		if err != nil {
+			logger.Printf("Error writing history: %v", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "text/html")
+		w.WriteHeader(http.StatusOK)
+
+	default:
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
+}
+
+func writeHistory(w http.ResponseWriter) error {
+	for _, msg := range ChatHistory {
+		template := "html/components/"
+		if msg.Role == User {
+			template += "user_msg.html"
+		} else {
+			template += "ai_msg.html"
+		}
+
+		err := writeChatMessage(w, template, msg)
+		if err != nil {
+			logger.Printf("Error writing template: %v", err)
+			return err
+		}
+	}
+	return nil
+}
+
+func llmModelHandler(w http.ResponseWriter, r *http.Request) {
+	logger.Println("large language model handler")
+
+	switch r.Method {
+	case http.MethodGet:
 		w.Header().Set("Content-Type", "text/plain")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(resp))
-
+		w.Write([]byte(GetLangModel()))
 	default:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
@@ -170,4 +219,14 @@ func allGuestHandler(w http.ResponseWriter, r *http.Request) {
 	default:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
+}
+
+
+func writeChatMessage(wr io.Writer, name string, data* Message) error {
+	tmpl, err := template.ParseFiles(name)
+	if err != nil {
+		return err
+	}
+	err = tmpl.Execute(wr, data)
+	return err
 }

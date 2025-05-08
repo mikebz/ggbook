@@ -97,12 +97,9 @@ func TestChat(t *testing.T) {
 	configureAiModel(client)
 	session := model.StartChat()
 
-	err = aiChat(ctx, session, "give me a list of all guests")
+	response, err := aiChat(ctx, session, "give me a list of all guests")
 	assert.NoError(t, err)
-
-	resp, err := lastTextResponse(session)
-	assert.NoError(t, err)
-	assert.Contains(t, resp, "list of all")
+	assert.Contains(t, response, "list of all")
 }
 
 func TestNoCallMessage(t *testing.T) {
@@ -115,10 +112,7 @@ func TestNoCallMessage(t *testing.T) {
 	configureAiModel(client)
 	session := model.StartChat()
 
-	err = aiChat(ctx, session, "what are you capable of doing?")
+	response, err := aiChat(ctx, session, "what are you capable of doing?")
 	assert.NoError(t, err)
-
-	resp, err := lastTextResponse(session)
-	assert.NoError(t, err)
-	assert.Contains(t, resp, "guest")
+	assert.Contains(t, response, "guest")
 }

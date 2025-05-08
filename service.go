@@ -88,8 +88,8 @@ func allGuests() (guests []Guest, err error) {
 }
 
 func oneGuestDx(p map[string]any) map[string]any {
-	logger.Printf("Detting one user, params %v", p)
-	
+	logger.Printf("Getting one user, params %v", p)
+
 	id, err := safeUint(p["id"])
 	if err != nil {
 		return map[string]any{

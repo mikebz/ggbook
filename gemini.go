@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"strings"
 
@@ -39,12 +38,12 @@ func configureAiModel(client *genai.Client) {
 	model.Tools = aiTools()
 }
 
-func aiChat(ctx context.Context, chatSession *genai.ChatSession, prompt string) error {
+func aiChat(ctx context.Context, chatSession *genai.ChatSession, prompt string) (string, error) {
 	logger.Printf("Sending a message to Gemini %s", prompt)
 	// Send the message to the generative model.
 	r, err := chatSession.SendMessage(ctx, genai.Text(prompt))
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	fnCalls := r.Candidates[0].FunctionCalls()
@@ -52,6 +51,7 @@ func aiChat(ctx context.Context, chatSession *genai.ChatSession, prompt string) 
 	// handle a conversation that had no calls, just
 	if len(fnCalls) == 0 {
 		logger.Printf("Non functional response received")
+
 	} else {
 		args := fnCalls[0].Args
 
@@ -65,33 +65,25 @@ func aiChat(ctx context.Context, chatSession *genai.ChatSession, prompt string) 
 
 		r, err = chatSession.SendMessage(ctx, genAiResp)
 		if err != nil {
-			return err
+			return "", err
 		}
 	}
 
-	return err
+	content := stringContent(r.Candidates[0].Content)
+	return content, nil
 }
 
-func lastTextResponse(chatSession *genai.ChatSession) (string, error) {
-	// Get the last response from the chat session
-	if len(chatSession.History) == 0 {
-		return "", fmt.Errorf("no history in chat session")
-	}
 
-	lastResponse := chatSession.History[len(chatSession.History)-1]
-
-
+// stringContent puts together all the text parts of a response
+// and returns it as a single string.
+func stringContent(content *genai.Content) string {
 	var response strings.Builder
-	for _, part := range lastResponse.Parts {
+	for _, part := range content.Parts {
 		if txt, ok := part.(genai.Text); ok {
 			response.Write([]byte(txt))
 		}
 	}
-
-	if response.Len() == 0 {
-		return "", fmt.Errorf("no text response found")
-	}
-	return response.String(), nil
+	return response.String()
 }
 
 var dxFns = map[string]DxFunc{

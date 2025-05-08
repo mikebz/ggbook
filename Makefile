@@ -19,10 +19,7 @@ test:
 build:
 	go build -o $(TARGET)
 
-build_frontend:
-	cd html && npm run build
-
-run: build build_frontend
+run: build
 	./$(TARGET)
 
 migrate: build
@@ -46,7 +43,7 @@ curl_get:
 
 curl_get_all:
 	curl $(API_URL)
-	
+
 curl_get_all_pretty:
 	curl $(API_URL) | gojq '.'
 
