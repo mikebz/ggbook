@@ -62,7 +62,11 @@
 
       <!-- Chat input -->
       <div class="bg-white border-t-2 border-gray-200 px-4 pt-4 mb-2 sm:mb-0">
-        <form hx-post="/chat" hx-target="#history" hx-on::after="this.reset()">
+        <form
+          hx-post="/chat"
+          hx-target="#history"
+          hx-on::after-request="this.reset()"
+        >
           <div class="relative flex">
             <input
               name="chat_message"
