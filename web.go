@@ -11,7 +11,6 @@ import (
 	"io"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/google/generative-ai-go/genai"
 	"github.com/rs/cors" // Import the cors package
@@ -74,7 +73,7 @@ func chatHandler(w http.ResponseWriter, r *http.Request) {
 
 		content := r.FormValue("chat_message")
 
-		userMsg := &Message{ User, content, time.Now()}
+		userMsg := NewMessage(User, content)
 		ChatHistory = append(ChatHistory, userMsg)
 
 		resp, err := aiChat(ctx, chatSession, content)
@@ -84,7 +83,7 @@ func chatHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		aiMsg := &Message{ Agent, resp, time.Now()}
+		aiMsg := NewMessage(Agent, resp)
 		ChatHistory = append(ChatHistory, aiMsg)
 
 		err = writeHistory(w)

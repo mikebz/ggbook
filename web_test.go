@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-	"time"
 )
 
 func TestWriteTemplate(t *testing.T) {
@@ -20,11 +19,7 @@ func TestWriteTemplate(t *testing.T) {
 	}
 
 	// Test data
-	testData := &Message{
-		Role:   User,
-		Content: "This is a test!",
-		Time:   time.Now(),
-	}
+	testData := NewMessage(User, "This is a test!")
 
 	// Expected output
 	expectedOutput := `<html><body><h1>Hello user!</h1><p>This is a test!</p></body></html>`

@@ -65,6 +65,7 @@
         <form
           hx-post="/chat"
           hx-target="#history"
+          hx-swap="scroll:bottom"
           hx-on::after-request="this.reset()"
         >
           <div class="relative flex">
