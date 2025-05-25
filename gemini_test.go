@@ -99,7 +99,7 @@ func TestChat(t *testing.T) {
 
 	response, err := aiChat(ctx, session, "give me a list of all guests")
 	assert.NoError(t, err)
-	assert.Contains(t, response, "list of all")
+	assert.Contains(t, response, "list of all", "Expected response to contain 'list of all' but got: %s", response)
 }
 
 func TestNoCallMessage(t *testing.T) {
