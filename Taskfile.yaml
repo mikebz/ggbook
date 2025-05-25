@@ -1,0 +1,107 @@
+version: "3"
+
+env:
+  API_URL: http://localhost:8080/guests
+
+env_files:
+  - .env
+
+tasks:
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list
+
+  clean:
+    desc: Clean build artifacts and temporary files
+    cmds:
+      - rm -fr out
+      - rm -f *.db
+      - rm -f coverage.out
+
+  install-golangci-lint:
+    desc: Install golangci-lint if not present
+    cmds:
+      - |
+        if ! command -v golangci-lint &> /dev/null; then
+          echo "Installing golangci-lint..."
+          go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+        else
+          echo "golangci-lint is already installed"
+        fi
+    status:
+      - command -v golangci-lint
+
+  check:
+    desc: Run linters on the codebase
+    deps: [install-golangci-lint]
+    cmds:
+      - golangci-lint run --timeout 5m
+      - go vet ./...
+      - go fmt ./...
+      - go mod tidy
+      - go mod verify
+      - go run github.com/client9/misspell/cmd/misspell -w .
+      - go run github.com/errcheck/errcheck ./...
+
+  test:
+    desc: Run tests with coverage
+    cmds:
+      - go test -v -coverprofile=coverage.out ./...
+
+  build:
+    desc: Build the application
+    cmds:
+      - go build -o out/ggbook
+    generates:
+      - out/ggbook
+
+  run:
+    desc: Build and run the application
+    deps: [build]
+    cmds:
+      - ./out/ggbook
+
+  migrate:
+    desc: Run database migrations
+    deps: [build]
+    cmds:
+      - ./out/ggbook -migrate
+
+  coverage:
+    desc: Generate HTML coverage report
+    deps: [test]
+    cmds:
+      - go tool cover -html=coverage.out -o coverage.html
+    generates:
+      - coverage.html
+
+  # Manual testing targets
+  curl_post:
+    desc: POST a guest using curl
+    cmds:
+      - |
+        curl -X POST \
+          -H "Content-Type: application/json" \
+          --data-binary "@testdata/oneguest.json" \
+          {{.API_URL}}
+
+  curl_get:
+    desc: GET a specific guest using curl
+    cmds:
+      - curl {{.API_URL}}/1
+
+  curl_get_all:
+    desc: GET all guests using curl
+    cmds:
+      - curl {{.API_URL}}
+
+  curl_get_all_pretty:
+    desc: GET all guests with pretty JSON formatting
+    cmds:
+      - curl {{.API_URL}} | gojq '.'
+
+  curl_delete:
+    desc: DELETE a guest using curl
+    cmds:
+      - curl -X DELETE {{.API_URL}}/1
