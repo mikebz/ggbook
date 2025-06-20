@@ -4,11 +4,11 @@ FROM golang:1.23-alpine AS builder
 WORKDIR /app
 
 # Copy go mod and sum files
-COPY ../go.mod ../go.sum ./
+COPY go.mod go.sum ./
 RUN go mod download
 
 # Copy the source code
-COPY ../ ./
+COPY . .
 
 # Build the Go binary
 RUN CGO_ENABLED=0 GOOS=linux go build -o ggbook
@@ -24,8 +24,6 @@ COPY --from=builder /app/ggbook .
 # Copy static files (optional, if you want to serve html)
 COPY --from=builder /app/html ./html
 
-# Expose the port your app listens on
 EXPOSE 8080
 
-# Run the binary
 ENTRYPOINT ["./ggbook"]
