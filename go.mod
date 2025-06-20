@@ -1,9 +1,10 @@
 module ggbook
 
-go 1.23.3
+go 1.24
 
 require (
 	github.com/google/generative-ai-go v0.19.0
+	github.com/joho/godotenv v1.5.1
 	github.com/rs/cors v1.11.1
 	github.com/stretchr/testify v1.10.0
 	google.golang.org/api v0.186.0
@@ -30,7 +31,6 @@ require (
 	github.com/googleapis/gax-go/v2 v2.12.5 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/mattn/go-sqlite3 v1.14.24 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	go.opencensus.io v0.24.0 // indirect
