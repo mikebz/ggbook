@@ -11,8 +11,6 @@ steps:
       ]
   - name: "gcr.io/cloud-builders/docker"
     args: ["push", "gcr.io/$PROJECT_ID/ggbook:$SHORT_SHA"]
-options:
-  defaultLogsBucketBehavior: REGIONAL_USER_OWNED_BUCKET
 
 images:
   - "gcr.io/$PROJECT_ID/ggbook:$SHORT_SHA"
